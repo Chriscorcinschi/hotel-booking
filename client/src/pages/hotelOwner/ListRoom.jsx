@@ -1,9 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Title from "../../components/Title";
-import { roomsDummyData } from "../../assets/assets";
+import { useAppContext } from "../../Context/AppContext";
+import toast from "react-hot-toast";
 
 const ListRoom = () => {
-    const [rooms, setRooms] = useState (roomsDummyData)
+    const [rooms, setRooms] = useState([])
+    const {axios, getToken, user, currency} = useAppContext()
+
+    // Fetch rooms of the hotel owner
+     const fetchRooms = async ()=>{
+        try {
+            const { data } = await axios.get('/api/rooms/owner',
+                {headers: {Authorization: `Bearer ${await getToken()}`
+                }})
+                if (data.success){
+                    setRooms(data.rooms)
+                }
+                else{
+                    toast.error(data.message)
+                }
+        }catch(error){
+            toast.error(error.response?.data?.message || error.message || 'Something went wrong')
+        }
+     };
+
+     //toggle availability of the room 
+     const toggleAvailability = async (roomId) => {
+    try {
+        const { data } = await axios.post('/api/rooms/toggle/availability',
+            { roomId },
+            { headers: { Authorization: `Bearer ${await getToken()}` } });
+
+        if (data.success) {
+            toast.success(data.message);
+            fetchRooms();
+        } else {
+            toast.error(data.message);
+        }
+    } catch (error) {
+        toast.error(error.response?.data?.message || error.message || 'Something went wrong');
+    }
+};
+
+
+     useEffect(()=>{
+        if(user){
+            fetchRooms()
+        }
+     },[user])
 
     return (
         <div>
@@ -39,7 +83,7 @@ const ListRoom = () => {
                             {item.amenities.join(', ')}
                         </td>
                         <td className="py-3 px-4 text-gray-700 border-t border-gray-300">
-                            {item.pricePerNight}
+                            {item.pricePerNight} {currency}
                         </td>
                         <td className="py-3 px-4 border-t border-gray-300 text-sm text-red-500 text-center">
                             <label 
@@ -48,9 +92,10 @@ const ListRoom = () => {
                                 <input 
                                 type="checkbox"
                                 className="sr-only peer"
-                                checked={item.isAvailable}/>
+                                checked={item.isAvailable}
+                                onChange={()=> toggleAvailability(item._id)}/>
                                 <div className="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 transition-colors duration-200 ">
-                                    <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5">
+                                    <span className="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5">
 
                                     </span>
                                 </div>

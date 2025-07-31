@@ -1,3 +1,4 @@
+import transporter from "../configs/nodemailer.js";
 import Booking from "../models/Booking.js";
 import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js"
@@ -26,9 +27,7 @@ export const checkAvailabilityAPI = async (req, res) => {
     try {
         const {room, checkInDate, checkOutDate} = req.body;
         const isAvailable = await checkAvailabilityAPI({checkInDate, checkOutDate, room});
-        
         res.json ({success: true, isAvailable});
-
     } catch (error) {
         res.json ({success: false, message: error.message})
         
@@ -74,6 +73,27 @@ export const createBooking = async (req, res) => {
             checkOutDate,
             totalPrice,
         })
+
+        const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: req.user.email,
+            subject: 'Hotel Booking Details',
+            html: `
+                <h2>Your Booking Details</h2>
+                <p> Dear ${req.user.username},</p>
+                <p>Thank you for your booking! Here are your details:</p>
+                <ul>
+                    <il><strong>Booking ID:</strong> ${booking._id}</il>
+                    <il><strong>Hotel Name:</strong> ${roomData.hotel.name}</il>
+                    <il><strong>Location:</strong> ${roomData.hotel.address}</il>
+                    <il><strong>Date:</strong> ${booking.checkInDate.toDateString()}</il>
+                    <il><strong>Booking Amount:</strong> ${process.env.CURRENCY} || '€'${booking.totalPrice}</il>
+                </ul>
+                <p>We look forward to welcoming you!</p>
+                <p>If you need to make any changes, feel free to contact us.</p>
+            `
+        }
+        await transporter.sendMail(mailOptions)
         res.json ({success: true, message: "Booking created successfully"});
      
     } catch (error) {
@@ -88,8 +108,8 @@ export const createBooking = async (req, res) => {
 export const getUserBookings = async (req, res) =>{
     try {
         const user = req.user._id;
-        const booking = await Booking.find(user).populate("room, hotel").sort({createdAt: -1})
-        res.json ({success: true, booking});
+        const bookings = await Booking.find(user).populate("room, hotel").sort({createdAt: -1})
+        res.json ({success: true, bookings});
 
     } catch (error) {
         res.json ({success: false, message: "Failed to fetch bookings"});

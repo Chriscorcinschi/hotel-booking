@@ -24,7 +24,6 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const {openSignIn} = useClerk();
-    
     const location = useLocation();
 
     const {user, navigate, isOwner, setShowHotelReg} = useAppContext();
@@ -69,7 +68,8 @@ const Navbar = () => {
                         onClick={() => isOwner ? navigate('/owner') : setShowHotelReg(true)}>
                             {isOwner ? 'Dashboard' : 'List Your Hotel'}
                         </button>
-                    )}
+                        )
+                    }
                 </div>
 
                 {/* Desktop Right */}
