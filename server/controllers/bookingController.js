@@ -2,6 +2,7 @@ import transporter from "../configs/nodemailer.js";
 import Booking from "../models/Booking.js";
 import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js"
+import stripe from "stripe"
 
 //function to check availablity of room
 const checkAvailability = async ({checkInDate, checkOutDate, room}) => {
@@ -135,3 +136,60 @@ export const getHotelBookings = async (req, res) => {
     }
 };
 
+// STRIPE 
+export const stripePayment = async (req, res) => {
+    try {
+        const { bookingId } = req.body;
+        if (!bookingId) {
+            return res.status(400).json({ success: false, message: "Booking ID is required" });
+        }
+
+        const booking = await Booking.findById(bookingId);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+
+        const roomData = await Room.findById(booking.room).populate('hotel');
+        if (!roomData || !roomData.hotel) {
+            return res.status(404).json({ success: false, message: "Room or Hotel not found" });
+        }
+
+        const totalPrice = booking.totalPrice; // Removed await (not needed)
+        const { origin } = req.headers;
+
+        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+
+        const line_items = [
+            {
+                price_data: {
+                    currency: "eur",
+                    product_data: {
+                        name: roomData.hotel.name,
+                    },
+                    unit_amount: Math.round(totalPrice * 100) 
+                },
+                quantity: 1,
+            }
+        ];
+
+        // Create checkout session 
+        const session = await stripeInstance.checkout.sessions.create({
+            line_items,
+            mode: "payment",
+            success_url: `${origin}/loader/my-bookings`,
+            cancel_url: `${origin}/my-bookings`,
+            metadata: {
+                bookingId,
+            }
+        });
+
+        res.json({ success: true, url: session.url });
+    } catch (error) {
+        console.error("Stripe payment error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Payment Failed",
+            error: error.message 
+        });
+    }
+}; 
