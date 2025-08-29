@@ -108,7 +108,7 @@ const AllRooms = () => {
     const filterDestination = (room) =>{
         const destination = searchParams.get('destination');
         if(!destination) return true;
-        return room.hotel.city.toLowerCase().includes(destination.toLocaleLowerCase())
+        return room.hotel.city.toLowerCase()?.includes(destination.toLocaleLowerCase())
     }
 
     //filter and sort rooms based on the selected filters and sort option 

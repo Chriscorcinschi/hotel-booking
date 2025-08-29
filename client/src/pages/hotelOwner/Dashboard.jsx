@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Title from "../../components/Title";
 import { assets, } from "../../assets/assets";
 import { useAppContext } from "../../Context/AppContext";
-import axios from "axios";
 
 const Dashboard = () => {
     const { currency, user, getToken, toast, axios } = useAppContext();
