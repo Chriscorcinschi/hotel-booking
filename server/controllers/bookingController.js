@@ -27,7 +27,7 @@ const checkAvailability = async ({checkInDate, checkOutDate, room}) => {
 export const checkAvailabilityAPI = async (req, res) => {
     try {
         const {room, checkInDate, checkOutDate} = req.body;
-        const isAvailable = await checkAvailabilityAPI({checkInDate, checkOutDate, room});
+        const isAvailable = await checkAvailability({checkInDate, checkOutDate, room});
         res.json({success: true, isAvailable});
     } catch (error) {
         res.json({success: false, message: error.message})
@@ -130,7 +130,7 @@ export const getHotelBookings = async (req, res) => {
         const totalBookings = bookings.length; 
         //total revenue
         const totalRevenue = bookings.reduce((acc, booking)=> acc + booking.totalPrice, 0); 
-            res.json({success: true, dashboardData: {totalBookings, totalRevenue, bookings}});
+            res.json ({success: true, dashboardData: {totalBookings, totalRevenue, bookings}});
     } catch (error) {
         res.json({success:false, message: "Failed to fetch bookings"})
     }
