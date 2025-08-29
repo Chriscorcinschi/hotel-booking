@@ -25,17 +25,17 @@ const ListRoom = () => {
      };
 
      //toggle availability of the room 
-     const toggleAvailability = async (roomId) => {
+     const toggleAvailability = async (roomId)=>{
     try {
-        const { data } = await axios.post('/api/rooms/toggle/availability',
-            { roomId },
-            { headers: { Authorization: `Bearer ${await getToken()}` } });
+        const {data} = await axios.post('/api/rooms/toggle/availability',
+            {roomId},
+            {headers: {Authorization: `Bearer ${await getToken()}`}});
 
         if (data.success) {
-            toast.success(data.message);
-            fetchRooms();
+            toast.success(data.message)
+            fetchRooms()
         } else {
-            toast.error(data.message);
+            toast.error(data.message)
         }
     } catch (error) {
         toast.error(error.response?.data?.message || error.message || 'Something went wrong');
