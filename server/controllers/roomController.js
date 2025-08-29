@@ -26,9 +26,9 @@ export const createRoom = async (req, res) => {
             amenities: JSON.parse(amenities),
             images,
         })
-        res.json ({success: true, message: "Room created successfully"});
+        res.json({success: true, message: "Room created successfully"});
     } catch (error) {
-        res.json ({success: false, message: error.message});
+        res.json({success: false, message: error.message});
     }
 };
 
@@ -77,7 +77,7 @@ export const toggleRoomAvailability = async (req, res) => {
         const roomData = await Room.findById(roomId);
         roomData.isAvailable = !roomData.isAvailable; 
         await roomData.save();
-        res.json ({success: true, message: "Room availability Updated"});
+        res.json({success: true, message: "Room availability Updated"});
     } catch (error) {
         res.json({ success: false, message: error.message });
     }

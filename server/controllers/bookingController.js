@@ -28,9 +28,9 @@ export const checkAvailabilityAPI = async (req, res) => {
     try {
         const {room, checkInDate, checkOutDate} = req.body;
         const isAvailable = await checkAvailabilityAPI({checkInDate, checkOutDate, room});
-        res.json ({success: true, isAvailable});
+        res.json({success: true, isAvailable});
     } catch (error) {
-        res.json ({success: false, message: error.message})
+        res.json({success: false, message: error.message})
         
     }
 };
@@ -50,7 +50,7 @@ export const createBooking = async (req, res) => {
             room
         });
         if(!isAvailable) {
-            return res.json ({success: false, message: "Room is note available"})
+            return res.json({success: false, message: "Room is note available"})
         };
 
         //Get totalPrice for room
@@ -95,11 +95,11 @@ export const createBooking = async (req, res) => {
             `
         }
         await transporter.sendMail(mailOptions)
-        res.json ({success: true, message: "Booking created successfully"});
+        res.json({success: true, message: "Booking created successfully"});
      
     } catch (error) {
         console.log(error);
-        res.json ({success: false, message: "Failed to create booking"})
+        res.json({success: false, message: "Failed to create booking"})
     }
 };
 
@@ -110,10 +110,10 @@ export const getUserBookings = async (req, res) =>{
     try {
         const user = req.user._id;
         const bookings = await Booking.find(user).populate("room, hotel").sort({createdAt: -1})
-        res.json ({success: true, bookings});
+        res.json({success: true, bookings});
 
     } catch (error) {
-        res.json ({success: false, message: "Failed to fetch bookings"});
+        res.json({success: false, message: "Failed to fetch bookings"});
         
     }
 };
@@ -122,7 +122,7 @@ export const getHotelBookings = async (req, res) => {
     try {
             const hotel = await Hotel.findOne({owner: req.auth.userId});
         if(!hotel) {
-            return res.json ({success: false, message: "No Hotel found"})};
+            return res.json({success: false, message: "No Hotel found"})};
 
         const bookings = await Booking.find({hotel: hotel._id}).populate("room, hotel, user").sort({createdAt: -1});
         
@@ -130,7 +130,7 @@ export const getHotelBookings = async (req, res) => {
         const totalBookings = bookings.length; 
         //total revenue
         const totalRevenue = bookings.reduce((acc, booking)=> acc + booking.totalPrice, 0); 
-            res.json ({success: true, dashboardData: {totalBookings, totalRevenue, bookings}});
+            res.json({success: true, dashboardData: {totalBookings, totalRevenue, bookings}});
     } catch (error) {
         res.json({success:false, message: "Failed to fetch bookings"})
     }
