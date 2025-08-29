@@ -6,7 +6,7 @@ import User from "../models/User.js";
 export const protect = async (req, res, next) => {
   try {
     // 1. Estrai userId dal token
-    const { userId } = getAuth(req);
+    const { userId } = req.auth;
     if (!userId) {
       return res.status(401).json({ success: false, message: "Not authenticated" });
     }
